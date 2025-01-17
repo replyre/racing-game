@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Racing Game</title>
+  </head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .bg {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    .bg video {
+      width: 100%;
+      position: relative;
+      bottom: 100px;
+    }
+    .bg .car1 {
+      z-index: 2;
+      position: absolute;
+      bottom: 120px;
+      /* top: 20px; */
+      right: -200px;
+      transform: rotatey(180deg);
+    }
+    .bg .car2 {
+      z-index: 2;
+      position: absolute;
+      bottom: 10px;
+      /* top: 20px; */
+      right: -200px;
+      transform: rotatey(180deg);
+    }
+    .bg .logo {
+      z-index: 2;
+      position: absolute;
+      top: 10px;
+      top: 60px;
+      left: 10px;
+      transform: rotatez(-10deg);
+    }
+    .bg .start {
+      z-index: 2;
+      position: absolute;
+      top: 10px;
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .bg .start-btn,
+    .bg .result button {
+      background-color: rgb(240, 181, 5);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .bg .desc {
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+      color: white;
+      font-size: 20px;
+    }
+    .bg .timer {
+      z-index: 2;
+      position: absolute;
+      top: 10px;
+      top: 2%;
+      right: 20px;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+      font-size: 30px;
+      color: black;
+    }
+    .bg .display-key {
+      z-index: 2;
+      position: absolute;
+      bottom: 2%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+      font-size: 24px;
+      color: white;
+      display: flex;
+      gap: 10px;
+    }
+    .bg .display-key span {
+      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      width: 40px;
+      padding: 10px;
+      border-radius: 50%;
+      background-color: black;
+      padding-bottom: 20px;
+    }
+    .bg .display-key span:first-of-type {
+      animation: glow infinite 1s linear;
+    }
+    @keyframes glow {
+      0% {
+        box-shadow: 0px 0px 10px 1px white;
+      }
+      100% {
+        box-shadow: 0px 0px 0px 1px white;
+      }
+    }
+    .bg .result {
+      z-index: 2;
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+
+      font-size: 30px;
+      color: rgb(212, 24, 24);
+      display: flex;
+      flex-direction: column;
+    }
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+  </style>
+  <body>
+    <div id="loader">
+      <img src="./car1.gif" alt="" class="car1" height="100px" />
+    </div>
+
+    <div class="bg">
+      <video src="./videoplayback.mp4" muted autoplay loop></video>
+      <img src="./logo.png" alt="" class="logo" />
+      <img src="./car1.gif" alt="" class="car1" />
+      <img src="./car2.gif" alt="" class="car2" />
+      <p class="timer">Time: 6 ticks</p>
+      <div class="start">
+        <button class="start-btn">Start</button>
+        <p class="desc">
+          * press all the given directions in order before the time runs out
+        </p>
+      </div>
+      <div class="display-key"></div>
+      <div class="result"></div>
+    </div>
+    <script>
+      const dir = [
+        { name: "ArrowUp", img: "&#8593;" },
+        { name: "ArrowDown", img: "&#8595;" },
+        { name: "ArrowRight", img: "&#8594;" },
+        { name: "ArrowLeft", img: "&#8592;" },
+      ];
+      let key = [];
+      let cnt = 0;
+      let i = 0;
+      let run = false;
+      for (let i = 0; i <= 6; i++) {
+        key.push(dir[Math.floor(Math.random() * 4)]);
+      }
+      const bg = document.querySelector("video");
+      //   bg.play();
+      const start = document.querySelector(".start-btn");
+      start.addEventListener("click", () => {
+        run = true;
+        key.map((e) => {
+          const span = document.createElement("span");
+          span.innerHTML = e.img;
+          document.querySelector(".display-key").appendChild(span);
+        });
+        start.style.display = "none";
+        document.querySelector(".desc").style.display = "none";
+        function runAnimation() {
+          if (cnt > 6) {
+            document.querySelector(
+              ".result"
+            ).innerHTML = `You Won <button onClick="location.reload()">Restart</button>`;
+            return;
+          } else if (i > 6) {
+            document.querySelector(
+              ".result"
+            ).innerHTML = `You Lose <button onClick="location.reload()">Restart</button>`;
+            return;
+          }
+
+          if (i > 6 || cnt > 6) {
+            return; // Stop when the loop exceeds 6 or cnt >= 6
+          }
+
+          setTimeout(() => {
+            document.querySelector(".bg .car1").style.right = `${i * 200}px`;
+            document.querySelector(".timer").innerHTML = `Time: ${6 - i} ticks`;
+            i++; // Increment the loop counter
+            runAnimation(); // Call the function again for the next step
+          }, i * 300);
+        }
+
+        // Start the animation
+        runAnimation();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key == key[0].name && run) {
+          if (cnt >= 6) {
+            document.querySelector(
+              ".result"
+            ).innerHTML = `You Won <button onClick="location.reload()">Restart</button>`;
+          }
+          if (i > 6) return;
+          key.shift();
+          document.querySelector(".bg .car2").style.right = `${cnt * 200}px`;
+          cnt++;
+          document.querySelector(".display-key").innerHTML = "";
+          key.map((e) => {
+            const span = document.createElement("span");
+            span.innerHTML = e.img;
+            document.querySelector(".display-key").appendChild(span);
+          });
+        }
+      });
+    </script>
+    <script>
+      const video = document.querySelector("video");
+      const loader = document.getElementById("loader");
+      const videoContainer = document.querySelector(".bg");
+
+      // Wait for the video to be fully loaded
+      video.addEventListener("loadeddata", async () => {
+        loader.style.display = "none"; // Hide the loader
+        videoContainer.style.display = "block"; // Show the video
+        await video.play();
+      });
+    </script>
+  </body>
+</html>
